@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Player</title>
+
+		<link rel="stylesheet" href="css/style.css">
+		<link rel="stylesheet" href="css/skin.min.css">
+	</head>
+	<body>
+
+		<div id="app" v-on:click="closeMenu($event)">
+			<audio src="" controls="" id="audio"></audio>
+
+			<div class="player-controls">
+				<div class="container">
+					<div class="row offset-bottom track-info">
+						<div class="col-3">
+							<figure class="image" id="image">
+								<img v-bind:src="currentTrack.image" alt="">
+							</figure>
+						</div>
+						<div class="col-7 padless-left relative">
+							<div class="title">{{currentTrack.title}}</div>
+							<div class="author">{{currentTrack.artist}}</div>
+							<div class="row">
+								<div class="col-12 time">
+									<div class="time">{{!currentTime ? '00:00' : currentTime.toString().parseTime()}}</div> / <div class="duration">{{!duration ? '00:00' : duration.toString().parseTime()}}</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-2 right">
+							<div class="menu" v-bind:class="{'active': isMenuOpened}">
+								<button v-on:click="openMenu($event)"><i class="icon icon-more_vert"></i></button>
+								<ul class="clear">
+									<li v-on:click="showPopup('add')"><i class="icon icon-create_new_folder"></i>Открыть папку</li>
+									<li class="separator"></li>
+									<li><i class="icon icon-tune"></i>Эквалайзер</li>
+									<li><i class="icon icon-settings"></i>Настройки</li>
+									<li><i class="icon icon-unfold_less"></i>Компактный вид</li>
+									<li class="separator"></li>
+									<li><i class="icon icon-visibility"></i>Помощь / FAQ</li>
+									<li><i class="icon icon-close"></i>Выйти</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-8">
+							<ul class="clear">
+								<li><button id="play" v-on:click="play()"><i class="icon icon-play_arrow"></i></button></li>
+								<li><button id="pause" v-on:click="pause()"><i class="icon icon-pause"></i></button></li>
+								<li><button id="stop" v-on:click="stop()"><i class="icon icon-stop"></i></button></li>
+								<li><button id="prev"><i class="icon icon-skip_previous"></i></button></li>
+								<li><button id="next" v-on:click="next()"><i class="icon icon-skip_next"></i></button></li>
+								<li class="small"><button id="open"><i class="icon icon-file_upload"></i></button></li>
+							</ul>
+						</div>
+						<div class="col-4">
+							<div class="row">
+								<div class="col-6">
+									<span class="label">volume</span>
+								</div>
+								<div class="col-6">
+									<span class="label right">{{Math.ceil(volume * 100)}}</span>
+								</div>
+							</div>
+							<input type="range" class="volume" id="volume" v-on:change="setVolume" v-on:input="setVolume" value="100" min="0" max="100" step="1">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12 offset-top">
+							<div class="progress" id="progress">
+								<div class="bar"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="player-equalizer" id="equalizer">
+				<div class="container">
+					<div class="table">
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="31">
+							<div class="text">31</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="47">
+							<div class="text">47</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="62">
+							<div class="text">62</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="94">
+							<div class="text">94</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="125">
+							<div class="text">125</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="188">
+							<div class="text">188</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="250">
+							<div class="text">250</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="375">
+							<div class="text">375</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="500">
+							<div class="text">500</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="750">
+							<div class="text">750</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="1000">
+							<div class="text">1k</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="1500">
+							<div class="text">1.5k</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="2000">
+							<div class="text">2k</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="4000">
+							<div class="text">4k</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="8000">
+							<div class="text">8k</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="11000">
+							<div class="text">11k</div>
+						</div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" min="-1" max="1" step="0.1" data-freq="15000">
+							<div class="text">15k</div>
+						</div>
+						<div class="col"></div>
+						<div class="col">
+							<input type="range" class="eq-slider vertical" value="0" step="1" min="-100" max="100" id="gain" v-on:change="setGain" v-on:input="setGain">
+							<div class="text">gain</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="player-playlist" id="playlist">
+				<div v-for="folder in folders">
+					<h3 class="title">{{folder.name}}</h3>
+					<ul>
+						<li v-for="(file, index) in folder.files" v-on:dblclick="playTrack(folder.name, index)">
+							{{file.artist}} - {{file.title}}
+						</li>
+					</ul>
+				</div>
+			</div>
+
+
+			<div class="popup" id="add">
+				<div class="inner">
+					<h2>Открыть папку</h2>
+					<div class="paragraph">
+						Абсолютный путь к папке. <br>
+						Его нужно указывать полностью, начиная с корня. <br>
+					</div>
+					<div class="row">
+						<div class="col-8">
+							<input type="text" class="input" placeholder="Пример: /mnt/media/Music" v-model="openedFolderModel">
+						</div>
+						<div class="col-4">
+							<button class="btn btn-block" v-on:click="openFolder(openedFolderModel)">Открыть</button>
+						</div>
+					</div>
+					<small class="offset-top">
+						Для Linux это - /...<br>
+						Для Windows - C:\(или D:\, или любой другой диск)...
+					</small>
+				</div>
+			</div>
+
+		</div>
+
+	</body>
+
+	<script src="vue.js"></script>
+	<script src="utils.js"></script>
+	<script src="renderer.js"></script>
+</html>
